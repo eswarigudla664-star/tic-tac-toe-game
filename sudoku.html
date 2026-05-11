@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku Generator</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f2f2f2;
+        }
+        
+        h1 {
+            margin-top: 20px;
+        }
+        
+        #sudoku-board {
+            display: grid;
+            grid-template-columns: repeat(9, 45px);
+            grid-template-rows: repeat(9, 45px);
+            gap: 2px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+        
+        input {
+            width: 45px;
+            height: 45px;
+            text-align: center;
+            font-size: 20px;
+            border: 1px solid #555;
+        }
+        
+        .fixed {
+            background: #dcdcdc;
+            font-weight: bold;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Sudoku Puzzle Generator</h1>
+
+    <div id="sudoku-board"></div>
+
+    <button onclick="generateSudoku()">New Puzzle</button>
+    <button onclick="checkSolution()">Check</button>
+
+    <script>
+        const board = document.getElementById("sudoku-board");
+
+        let solution = [];
+
+        function createEmptyBoard() {
+            board.innerHTML = "";
+
+            for (let i = 0; i < 81; i++) {
+                const cell = document.createElement("input");
+                cell.type = "number";
+                cell.min = 1;
+                cell.max = 9;
+                board.appendChild(cell);
+            }
+        }
+
+        function isSafe(grid, row, col, num) {
+
+            for (let x = 0; x < 9; x++) {
+                if (grid[row][x] == num || grid[x][col] == num) {
+                    return false;
+                }
+            }
+
+            let startRow = row - row % 3;
+            let startCol = col - col % 3;
+
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (grid[i + startRow][j + startCol] == num) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        function solveSudoku(grid) {
+
+            for (let row = 0; row < 9; row++) {
+
+                for (let col = 0; col < 9; col++) {
+
+                    if (grid[row][col] == 0) {
+
+                        let nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                        nums.sort(() => Math.random() - 0.5);
+
+                        for (let num of nums) {
+
+                            if (isSafe(grid, row, col, num)) {
+
+                                grid[row][col] = num;
+
+                                if (solveSudoku(grid)) {
+                                    return true;
+                                }
+
+                                grid[row][col] = 0;
+                            }
+                        }
+
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        function generateSudoku() {
+
+            let grid = Array.from({
+                length: 9
+            }, () => Array(9).fill(0));
+
+            solveSudoku(grid);
+
+            solution = JSON.parse(JSON.stringify(grid));
+
+            // Remove cells
+            for (let i = 0; i < 40; i++) {
+                let row = Math.floor(Math.random() * 9);
+                let col = Math.floor(Math.random() * 9);
+                grid[row][col] = 0;
+            }
+
+            createEmptyBoard();
+
+            const cells = board.querySelectorAll("input");
+
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+
+                    let index = row * 9 + col;
+
+                    if (grid[row][col] !== 0) {
+                        cells[index].value = grid[row][col];
+                        cells[index].disabled = true;
+                        cells[index].classList.add("fixed");
+                    }
+                }
+            }
+        }
+
+        function checkSolution() {
+
+            const cells = board.querySelectorAll("input");
+
+            let correct = true;
+
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+
+                    let index = row * 9 + col;
+                    let value = parseInt(cells[index].value);
+
+                    if (value !== solution[row][col]) {
+                        correct = false;
+                    }
+                }
+            }
+
+            if (correct) {
+                alert("Correct Solution!");
+            } else {
+                alert("Wrong Solution!");
+            }
+        }
+
+        generateSudoku();
+    </script>
+
+</body>
+
+</html>
