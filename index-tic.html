@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tic Tac Toe</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: #f4f4f4;
+        }
+        
+        .board {
+            width: 300px;
+            margin: 30px auto;
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+        }
+        
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 2px solid black;
+            font-size: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Tic Tac Toe</h1>
+
+    <div class="board" id="board"></div>
+
+    <h2 id="status"></h2>
+
+    <script>
+        const board = document.getElementById("board");
+        const statusText = document.getElementById("status");
+
+        let cells = ["", "", "", "", "", "", "", "", ""];
+        let current = "X";
+
+        function drawBoard() {
+
+            board.innerHTML = "";
+
+            cells.forEach((cell, index) => {
+
+                const div = document.createElement("div");
+
+                div.classList.add("cell");
+
+                div.textContent = cell;
+
+                div.addEventListener("click", () => move(index));
+
+                board.appendChild(div);
+
+            });
+
+        }
+
+        function move(index) {
+
+            if (cells[index] != "") return;
+
+            cells[index] = current;
+
+            if (checkWin()) {
+
+                statusText.textContent = current + " Wins!";
+
+                return;
+            }
+
+            current = current == "X" ? "O" : "X";
+
+            drawBoard();
+        }
+
+        function checkWin() {
+
+            const wins = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+
+            return wins.some(pattern => {
+
+                return pattern.every(i => cells[i] == current);
+
+            });
+
+        }
+
+        drawBoard();
+    </script>
+
+</body>
+
+</html>
